@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vietnamese">Tiếng Việt</string>
+    <string name="english">Tiếng Anh</string>
+    <string name="app_name">Tính Điểm Leo Núi</string>
+    <string name="climb">Leo</string>
+    <string name="fall">Rơi</string>
+    <string name="reset">Đặt Lại</string>
+    <string name="point">Điểm: %1$d</string>
+    <string name="zone">Vùng: %1$s</string>
+    <string name="zone_start">bắt đầu</string>
+    <string name="blue">Xanh Dương</string>
+    <string name="green">Xanh Lá</string>
+    <string name="red">Đỏ</string>
+    <string name="toast_fall">Bạn đã ngã! Điểm đạt được là: %1$d</string>
+    <string name="toast_top">Bạn đã chạm tới đỉnh cuối cùng</string>
+
+</resources>

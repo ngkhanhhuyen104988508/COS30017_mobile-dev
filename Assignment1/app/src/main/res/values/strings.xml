@@ -1,0 +1,19 @@
+<resources>
+    <string name="vietnamese">Vietnamese</string>
+    <string name="english">English</string>
+    <string name="app_name">Climbing Score</string>
+    <string name="climb">Climb</string>
+    <string name="fall">Fall</string>
+    <string name="reset">Reset</string>
+    <string name="point">Point: %1$d</string>
+    <string name="zone">Zone: %1$s</string>
+    <string name="zone_start">start</string>
+    <string name="blue">Blue</string>
+    <string name="green">Green</string>
+    <string name="red">Red</string>
+    <string name="toast_fall">You fell! Final score: %1$d</string>
+    <string name="toast_top">Congratulations! You reached the top!</string>
+
+</resources>
+
+

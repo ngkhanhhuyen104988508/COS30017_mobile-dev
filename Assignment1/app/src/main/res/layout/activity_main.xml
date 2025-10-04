@@ -1,0 +1,120 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/spiderman"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/zoneOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.2"
+        android:scaleType="fitXY"
+        android:visibility="gone" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <RadioGroup
+            android:id="@+id/languageRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <RadioButton
+                android:id="@+id/vietnameseRadio"
+                android:layout_width="172dp"
+                android:layout_height="wrap_content"
+                android:text="@string/vietnamese"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:id="@+id/englishRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/english"
+                android:textStyle="bold" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/scoreTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="140dp"
+            android:gravity="center"
+            android:text="@string/point"
+            android:textSize="47sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/climbButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.3" />
+
+        <TextView
+            android:id="@+id/zoneTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/zone"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scoreTextView" />
+
+        <Button
+            android:id="@+id/climbButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="136dp"
+            android:backgroundTint="#1d4e89"
+            android:text="@string/climb"
+            android:textColor="#FFCE54"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scoreTextView" />
+
+        <Button
+            android:id="@+id/resetButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="130dp"
+            android:backgroundTint="#1d4e89"
+            android:text="@string/reset"
+            android:textColor="#FFCE54"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fallButton"
+            app:layout_constraintVertical_bias="0.054" />
+
+        <Button
+            android:id="@+id/fallButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="136dp"
+            android:backgroundTint="#1d4e89"
+            android:text="@string/fall"
+            android:textColor="#FFCE54"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/climbButton" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
