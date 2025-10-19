@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- API 26+ overrides: use shorthand attrs that require API 26 -->
+    <style name="PrimaryButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:paddingVertical">14dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+    </style>
+
+    <style name="NavigationButton" parent="SecondaryButton">
+        <item name="android:paddingVertical">10dp</item>
+        <item name="android:paddingHorizontal">16dp</item>
+    </style>
+
+    <style name="DetailCard" parent="Widget.MaterialComponents.CardView">
+        <item name="android:layout_marginVertical">8dp</item>
+    </style>
+
+    <style name="SectionDivider">
+        <item name="android:layout_marginVertical">16dp</item>
+    </style>
+</resources>

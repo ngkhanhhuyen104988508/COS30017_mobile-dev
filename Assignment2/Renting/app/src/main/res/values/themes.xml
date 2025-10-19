@@ -1,9 +1,48 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Renting" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+    <!-- Base Application Theme -->
+    <style name="Base.Theme.MusicStudioRental" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Primary Brand Colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/text_white</item>
+
+        <!-- Secondary Brand Colors -->
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/accent</item>
+        <item name="colorOnSecondary">@color/text_white</item>
+
+        <!-- Background Colors -->
+        <item name="android:colorBackground">@color/background_light</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+
+        <!-- Status Bar -->
+        <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Error Color -->
+        <item name="colorError">@color/error</item>
+
+        <!-- Typography -->
+        <item name="textAppearanceHeadline1">@style/HeadingText</item>
+        <item name="textAppearanceBody1">@style/BodyText</item>
+
+        <!-- Material Components -->
+        <item name="materialButtonStyle">@style/PrimaryButton</item>
+        <item name="textInputStyle">@style/InputField</item>
+
+        <!-- Window Background -->
+        <item name="android:windowBackground">@color/background_light</item>
     </style>
 
-    <style name="Theme.Renting" parent="Base.Theme.Renting" />
+    <style name="Theme.MusicStudioRental" parent="Base.Theme.MusicStudioRental" />
+
+    <!-- Toolbar/AppBar Theme -->
+    <style name="ThemeOverlay.MusicStudioRental.Toolbar" parent="ThemeOverlay.Material3.Dark">
+        <item name="colorControlNormal">@color/text_white</item>
+        <item name="titleTextColor">@color/text_white</item>
+    </style>
+
 </resources>
