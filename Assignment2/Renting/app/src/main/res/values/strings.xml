@@ -1,3 +1,67 @@
 <resources>
-    <string name="app_name">Renting</string>
+    <!-- App Name -->
+    <string name="app_name">Music Studio Rental</string>
+
+    <!-- Main Activity -->
+    <string name="main_title">Available Instruments</string>
+    <string name="button_next">Next</string>
+    <string name="button_previous">Previous</string>
+    <string name="button_borrow">Borrow Now</string>
+    <string name="page_indicator">%1$d / %2$d</string>
+    <string name="credits_per_month">%d credits/month</string>
+
+    <!-- Status Messages -->
+    <string name="status_available">✅ Available</string>
+    <string name="status_booked">🔒 Booked by %s</string>
+
+    <!-- Booking Activity -->
+    <string name="booking_title">Booking Details</string>
+    <string name="section_customer_info">Customer Information</string>
+    <string name="section_rental_summary">Rental Summary</string>
+
+    <!-- Input Fields -->
+    <string name="hint_customer_name">Full Name</string>
+    <string name="hint_contact">Email or Phone Number</string>
+    <string name="label_required">*</string>
+
+    <!-- Rental Summary Labels -->
+    <string name="label_monthly_cost">Monthly Cost:</string>
+    <string name="label_available_credits">Available Credits:</string>
+    <string name="label_remaining_credits">Remaining:</string>
+    <string name="credits_value">%d credits</string>
+
+    <!-- Buttons -->
+    <string name="button_confirm_booking">Confirm Booking</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_save">Save</string>
+
+    <!-- Validation Errors -->
+    <string name="error_name_required">Customer name is required</string>
+    <string name="error_contact_required">Contact information is required</string>
+    <string name="error_invalid_contact">Please enter a valid email or 10-digit phone number</string>
+    <string name="error_insufficient_credits">Insufficient credits. You need %1$d credits but only have %2$d</string>
+    <string name="error_already_booked">This instrument is already booked</string>
+
+    <!-- Success/Info Messages -->
+    <string name="success_booking">Successfully booked %s!</string>
+    <string name="info_booking_cancelled">Booking cancelled</string>
+    <string name="action_view_details">View</string>
+    <string name="action_undo">Undo</string>
+
+    <!-- Instrument Conditions -->
+    <string name="condition_excellent">Excellent</string>
+    <string name="condition_good">Good</string>
+    <string name="condition_fair">Fair</string>
+
+    <!-- Accessibility Descriptions -->
+    <string name="cd_instrument_image">Image of %s</string>
+    <string name="cd_rating">Rating: %1$.1f out of 5 stars</string>
+    <string name="cd_next_instrument">View next instrument</string>
+    <string name="cd_previous_instrument">View previous instrument</string>
+
+    <!-- Dialog Messages -->
+    <string name="dialog_cancel_booking_title">Cancel Booking?</string>
+    <string name="dialog_cancel_booking_message">Are you sure you want to cancel? Any changes will be lost.</string>
+    <string name="dialog_button_yes">Yes, Cancel</string>
+    <string name="dialog_button_no">No, Continue</string>
 </resources>

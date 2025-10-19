@@ -1,5 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Primary Brand Colors -->
+    <color name="primary">#1976D2</color> <!-- Blue -->
+    <color name="primary_dark">#1565C0</color>
+    <color name="primary_light">#BBDEFB</color>
+    <color name="accent">#FF6F00</color> <!-- Orange accent -->
+
+    <!-- Background Colors -->
+    <color name="background_light">#FAFAFA</color>
+    <color name="background_white">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    <color name="text_white">#FFFFFF</color>
+
+    <!-- Status Colors -->
+    <color name="success">#4CAF50</color> <!-- Green -->
+    <color name="error">#F44336</color> <!-- Red -->
+    <color name="warning">#FF9800</color> <!-- Orange -->
+    <color name="info">#2196F3</color> <!-- Blue -->
+
+    <!-- UI Element Colors -->
+    <color name="divider">#E0E0E0</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="ripple">#20000000</color> <!-- 12% black -->
+
+    <!-- Rating Star Color -->
+    <color name="rating_star">#FFC107</color> <!-- Amber -->
+
+    <!-- Button Colors -->
+    <color name="button_primary">#1976D2</color>
+    <color name="button_secondary">#757575</color>
+    <color name="button_disabled">#E0E0E0</color>
 </resources>
