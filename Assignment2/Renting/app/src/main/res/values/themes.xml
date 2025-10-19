@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <!-- Base Application Theme -->
     <style name="Base.Theme.MusicStudioRental" parent="Theme.Material3.Light.NoActionBar">
@@ -38,6 +38,9 @@
     </style>
 
     <style name="Theme.MusicStudioRental" parent="Base.Theme.MusicStudioRental" />
+
+    <!-- Alias for manifest theme reference -->
+    <style name="Theme.Renting" parent="Theme.MusicStudioRental" />
 
     <!-- Toolbar/AppBar Theme -->
     <style name="ThemeOverlay.MusicStudioRental.Toolbar" parent="ThemeOverlay.Material3.Dark">

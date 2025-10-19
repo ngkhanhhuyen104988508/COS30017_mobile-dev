@@ -52,6 +52,8 @@
     <string name="condition_excellent">Excellent</string>
     <string name="condition_good">Good</string>
     <string name="condition_fair">Fair</string>
+    <!-- Label used in activity_main -->
+    <string name="label_condition">Condition:</string>
 
     <!-- Accessibility Descriptions -->
     <string name="cd_instrument_image">Image of %s</string>
