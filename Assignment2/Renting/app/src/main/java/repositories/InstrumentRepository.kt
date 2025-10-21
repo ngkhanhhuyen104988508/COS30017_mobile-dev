@@ -1,4 +1,4 @@
-package com.example.musicstudiorental.repositories
+package com.example.renting.repositories
 
 import com.example.renting.R
 import com.example.renting.models.Instrument
