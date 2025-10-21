@@ -1,4 +1,4 @@
-package models
+package com.example.renting.models
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
