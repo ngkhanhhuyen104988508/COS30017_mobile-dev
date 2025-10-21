@@ -34,7 +34,7 @@ object InstrumentRepository {
             Instrument(
                 id = 2,
                 name = "Digital Piano 88-Key",
-                rating = 4.8f,
+                rating = 5f,
                 condition = "Excellent",
                 pricePerMonth = 80,
                 imageResourceId = R.drawable.piano,
@@ -46,7 +46,7 @@ object InstrumentRepository {
             Instrument(
                 id = 3,
                 name = "Professional Drum Kit",
-                rating = 4.3f,
+                rating = 3.5f,
                 condition = "Good",
                 pricePerMonth = 100,
                 imageResourceId = R.drawable.drum,
@@ -58,7 +58,7 @@ object InstrumentRepository {
             Instrument(
                 id = 4,
                 name = "Studio Condenser Microphone",
-                rating = 4.7f,
+                rating = 4f,
                 condition = "Excellent",
                 pricePerMonth = 45,
                 imageResourceId = R.drawable.micro,
