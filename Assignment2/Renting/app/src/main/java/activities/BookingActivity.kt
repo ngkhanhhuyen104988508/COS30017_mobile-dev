@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import android.content.Intent
+import androidx.activity.OnBackPressedCallback
 
 /**
  * Booking Activity - Handle instrument booking
@@ -41,6 +42,7 @@ class BookingActivity : AppCompatActivity() {
 
     // Track if form has been modified
     private var hasModifications = false
+    private var isBookingSuccessful = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +50,12 @@ class BookingActivity : AppCompatActivity() {
         // Initialize ViewBinding
         binding = ActivityBookingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (!retrieveIntentData()) {
+            showError("Missing booking data")
+            finish()
+            return
+        }
 
         // Setup toolbar with back button
         setSupportActionBar(binding.toolbar)
@@ -140,22 +148,31 @@ class BookingActivity : AppCompatActivity() {
     /**
      * Setup click listeners for action buttons
      */
+
     private fun setupClickListeners() {
         // Confirm booking button
         binding.buttonConfirmBooking.setOnClickListener {
-            attemptBooking()
-        }
-
+            attemptBooking()}
         // Cancel booking button
         binding.buttonCancelBooking.setOnClickListener {
-            handleCancel()
+            onBackPressedDispatcher.onBackPressed()
         }
-
         // Toolbar back button
         binding.toolbar.setNavigationOnClickListener {
-            handleCancel()
+            onBackPressedDispatcher.onBackPressed()
         }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (hasModifications) {
+                    showCancelConfirmationDialog()
+                } else {
+                    isEnabled = false
+                    finish()
+                }
+            }
+        })
     }
+
 
     /**
      * Update credit summary display
@@ -273,6 +290,7 @@ class BookingActivity : AppCompatActivity() {
 
         // Set result and finish
         setResult(MainActivity.RESULT_BOOKED, resultIntent)
+        isBookingSuccessful = true
 
         // Show success message before closing
         showBookingSuccess(instrument.name)
@@ -284,20 +302,6 @@ class BookingActivity : AppCompatActivity() {
     }
 
     /**
-     * Handle cancel button or back navigation
-     * Shows confirmation dialog if form has modifications
-     */
-    private fun handleCancel() {
-        if (hasModifications) {
-            // Show confirmation dialog
-            showCancelConfirmationDialog()
-        } else {
-            // No changes, cancel directly
-            cancelBooking()
-        }
-    }
-
-    /**
      * Show confirmation dialog when cancelling with unsaved changes
      */
     private fun showCancelConfirmationDialog() {
@@ -306,7 +310,7 @@ class BookingActivity : AppCompatActivity() {
             .setMessage(R.string.dialog_cancel_booking_message)
             .setPositiveButton(R.string.dialog_button_yes) { dialog, _ ->
                 dialog.dismiss()
-                cancelBooking()
+                finish()
             }
             .setNegativeButton(R.string.dialog_button_no) { dialog, _ ->
                 dialog.dismiss()
@@ -318,13 +322,13 @@ class BookingActivity : AppCompatActivity() {
     /**
      * Cancel the booking and return to MainActivity
      */
-    private fun cancelBooking() {
-        // Set cancelled result
-        setResult(MainActivity.RESULT_CANCELLED)
-
-        // Finish activity
-        finish()
+    override fun finish() {
+        if (!isBookingSuccessful) {
+            setResult(MainActivity.RESULT_CANCELLED)
+        }
+        super.finish()
     }
+
 
     /**
      * Show success Snackbar
@@ -360,19 +364,23 @@ class BookingActivity : AppCompatActivity() {
      * Handle up navigation from toolbar
      * Treats it same as cancel
      */
-    override fun onSupportNavigateUp(): Boolean {
-        handleCancel()
-        return true
-    }
+//    override fun onSupportNavigateUp(): Boolean {
+//        handleCancel()
+//        return true
+//    }
 
     /**
      * Handle system back button
      * Treats it same as cancel
      */
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        handleCancel()
-    }
+//    @Deprecated("Deprecated in Java")
+//    override fun onBackPressed() {
+//        if (hasModifications) {
+//            showCancelConfirmationDialog()
+//        } else {
+//            super.onBackPressed()
+//        }
+//    }
 
     /**
      * Save instance state for configuration changes
