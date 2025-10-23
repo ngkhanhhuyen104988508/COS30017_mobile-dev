@@ -1,10 +1,13 @@
 package com.example.renting.activities
-import com.example.renting.activities.BookingActivity
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.Toolbar
 import com.example.renting.R
 import com.example.renting.databinding.ActivityMainBinding
 import com.example.renting.models.Instrument
@@ -42,9 +45,16 @@ class MainActivity : AppCompatActivity() {
         // Intent extras
         const val EXTRA_INSTRUMENT = "extra_instrument"
         const val EXTRA_AVAILABLE_CREDITS = "extra_credits"
+
+        private const val PREFS_NAME = "app_preferences"
+        private const val KEY_THEME_MODE = "theme_mode"
+        const val THEME_LIGHT = 0
+        const val THEME_DARK = 1
+        const val THEME_SYSTEM = 2
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        applySavedTheme()
         super.onCreate(savedInstanceState)
 
         // Initialize ViewBinding
@@ -62,11 +72,60 @@ class MainActivity : AppCompatActivity() {
 
         // Display first instrument
         displayInstrument(currentIndex)
+
+    }
+    //Apply theme based on saved preference
+    private fun applySavedTheme() {
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val themeMode = prefs.getInt(KEY_THEME_MODE, THEME_SYSTEM)
+
+        when (themeMode) {
+            THEME_LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            THEME_DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            THEME_SYSTEM -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
+    }
+     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+         menuInflater.inflate(R.menu.menu_main, menu)
+         return true
+     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_theme -> {
+                showThemeDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+    //Show theme selection dialog
+    private fun showThemeDialog() {
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val currentTheme = prefs.getInt(KEY_THEME_MODE, THEME_SYSTEM)
+
+        val themes = arrayOf("Light Mode", "Dark Mode", "System Default")
+
+        AlertDialog.Builder(this)
+            .setTitle("Choose Theme")
+            .setSingleChoiceItems(themes, currentTheme) { dialog, which ->
+                // Save preference
+                prefs.edit().putInt(KEY_THEME_MODE, which).apply()
+
+                // Apply theme
+                when (which) {
+                    THEME_LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    THEME_DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    THEME_SYSTEM -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                }
+
+                dialog.dismiss()
+            }
+            .show()
     }
 
-    /**
-     * Setup click listeners for all interactive elements
-     */
+     //Setup click listeners for all interactive elements
+
     private fun setupClickListeners() {
         // Previous button
         binding.buttonPrevious.setOnClickListener {

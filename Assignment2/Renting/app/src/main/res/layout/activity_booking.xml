@@ -181,7 +181,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:paddingVertical="8dp">
+                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="8dp">
 
                         <TextView
                             style="@style/BodyText"
@@ -205,7 +206,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:paddingVertical="8dp">
+                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="8dp">
 
                         <TextView
                             style="@style/BodyText"
@@ -229,14 +231,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:background="@color/divider"
-                        android:layout_marginVertical="8dp" />
+                        android:layout_marginVertical="3dp" />
 
                     <!-- Remaining Credits Row -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:paddingVertical="8dp">
+                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="8dp">
 
                         <TextView
                             style="@style/BodyText"
@@ -267,7 +270,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/button_confirm_booking"
-                app:icon="@android:drawable/ic_input_add" />
+                android:textSize="16sp"
+                app:icon="@drawable/tag_plus" />
 
             <Button
                 android:id="@+id/buttonCancelBooking"
@@ -275,7 +279,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="@string/button_cancel" />
+                android:text="@string/button_cancel"
+                android:textSize="17sp"/>
 
         </LinearLayout>
 
