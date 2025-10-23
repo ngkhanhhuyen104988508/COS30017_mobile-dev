@@ -12,9 +12,6 @@ import com.example.renting.repositories.InstrumentRepository
 import com.google.android.material.snackbar.Snackbar
 
 /**
- * Main Activity - Browse musical instruments
- *
- * Features:
  * - Display one instrument at a time
  * - Navigate between instruments (Previous/Next)
  * - Show booking status

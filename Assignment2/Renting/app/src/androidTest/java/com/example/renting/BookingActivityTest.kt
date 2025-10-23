@@ -26,7 +26,6 @@ class BookingActivityTest {
     fun setup() {
         // Initialize repository
         InstrumentRepository.initialize()
-
         // Get test instrument
         testInstrument = InstrumentRepository.getInstrumentAtIndex(0)!!
     }
