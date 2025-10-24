@@ -18,7 +18,7 @@
         android:elevation="4dp"
         app:title="@string/booking_title"
         app:titleTextColor="@color/text_white"
-        app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
+        app:navigationIcon="@drawable/close"
         app:theme="@style/ThemeOverlay.MusicStudioRental.Toolbar"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
