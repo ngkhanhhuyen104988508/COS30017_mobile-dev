@@ -14,7 +14,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import android.content.Intent
+import android.os.Build
+import android.view.HapticFeedbackConstants
+import android.view.animation.AnimationUtils
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.RequiresApi
 
 /**
  * Booking Activity - Handle instrument booking
@@ -44,6 +48,7 @@ class BookingActivity : AppCompatActivity() {
     private var hasModifications = false
     private var isBookingSuccessful = false
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -73,11 +78,83 @@ class BookingActivity : AppCompatActivity() {
 
         // Calculate and display credit summary
         updateCreditSummary()
+        // Animate entrance
+        animateEntrance()
+    }
+
+
+    //Animate entrance of booking screen
+
+    private fun animateEntrance() {
+        with(binding) {
+            // Fade in toolbar
+            toolbar.alpha = 0f
+            toolbar.animate()
+                .alpha(1f)
+                .setDuration(300)
+                .start()
+
+            // Slide in summary card from top
+            cardInstrumentSummary.translationY = -200f
+            cardInstrumentSummary.alpha = 0f
+            cardInstrumentSummary.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(400)
+                .setStartDelay(100)
+                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                .start()
+
+            // Fade in form fields with stagger
+            val fadeIn = AnimationUtils.loadAnimation(this@BookingActivity, R.anim.fade_in)
+
+            layoutCustomerName.apply {
+                alpha = 0f
+                postDelayed({
+                    startAnimation(fadeIn)
+                    alpha = 1f
+                }, 200)
+            }
+
+            layoutContact.apply {
+                alpha = 0f
+                postDelayed({
+                    startAnimation(fadeIn)
+                    alpha = 1f
+                }, 300)
+            }
+
+            cardRentalSummary.apply {
+                alpha = 0f
+                postDelayed({
+                    startAnimation(fadeIn)
+                    alpha = 1f
+                }, 400)
+            }
+
+            // Slide up buttons from bottom
+            buttonConfirmBooking.translationY = 100f
+            buttonConfirmBooking.alpha = 0f
+            buttonConfirmBooking.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(400)
+                .setStartDelay(500)
+                .start()
+
+            buttonCancelBooking.translationY = 100f
+            buttonCancelBooking.alpha = 0f
+            buttonCancelBooking.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(400)
+                .setStartDelay(550)
+                .start()
+        }
     }
 
     /**
      * Retrieve instrument and credits data from Intent
-     *
      * @return true if data retrieved successfully, false otherwise
      */
     private fun retrieveIntentData(): Boolean {
@@ -149,6 +226,7 @@ class BookingActivity : AppCompatActivity() {
      * Setup click listeners for action buttons
      */
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun setupClickListeners() {
         // Confirm booking button
         binding.buttonConfirmBooking.setOnClickListener {
@@ -212,6 +290,7 @@ class BookingActivity : AppCompatActivity() {
      * Attempt to process the booking
      * Validates all inputs and saves if valid
      */
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun attemptBooking() {
         // Get input values
         val customerName = binding.editCustomerName.text.toString()
@@ -241,21 +320,28 @@ class BookingActivity : AppCompatActivity() {
      *
      * @param errorMessage The error message to display
      */
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun showValidationError(errorMessage: String) {
         // Determine which field to show error on
         val customerName = binding.editCustomerName.text.toString()
         val contact = binding.editContact.text.toString()
+        // Shake animation for error
+        val shake = AnimationUtils.loadAnimation(this, R.anim. shake)
 
         when {
             ValidationHelper.validateCustomerName(customerName).let { !it.isValid } -> {
                 binding.layoutCustomerName.error = errorMessage
+                binding.layoutCustomerName.startAnimation(shake)
                 binding.editCustomerName.requestFocus()
+                // Haptic feedback for error
+                binding.root.performHapticFeedback(HapticFeedbackConstants.REJECT)
             }
             ValidationHelper.validateContact(contact).let { !it.isValid } -> {
                 binding.layoutContact.error = errorMessage
                 binding.editContact.requestFocus()
             }
             else -> {
+                binding.cardRentalSummary.startAnimation(shake)
                 // Credit error - show in Snackbar
                 Snackbar.make(
                     binding.root,
@@ -264,15 +350,34 @@ class BookingActivity : AppCompatActivity() {
                 ).setBackgroundTint(getColor(R.color.error))
                     .setTextColor(getColor(R.color.text_white))
                     .show()
+                binding.root.performHapticFeedback(HapticFeedbackConstants.REJECT)
             }
         }
     }
     private fun processBooking(customerName: String, contact: String) {
+        // Disable buttons during processing
+        binding.buttonConfirmBooking.isEnabled = false
+        binding.buttonCancelBooking.isEnabled = false
+
+        // Animate processing
+        binding.buttonConfirmBooking.animate()
+            .scaleX(0.95f)
+            .scaleY(0.95f)
+            .setDuration(100)
+            .withEndAction {
+                binding.buttonConfirmBooking.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(100)
+                    .start()
+            }
+            .start()
+
         // Sanitize inputs
         val sanitizedName = ValidationHelper.sanitizeInput(customerName)
         val sanitizedContact = ValidationHelper.sanitizeInput(contact)
 
-        // Get current date for booking record
+        // Get current date
         val currentDate = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             .format(Date())
 
@@ -290,16 +395,88 @@ class BookingActivity : AppCompatActivity() {
 
         // Set result and finish
         setResult(MainActivity.RESULT_BOOKED, resultIntent)
+        // Success haptic
+        binding.root.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
         isBookingSuccessful = true
 
+        // Animate exit
+        animateExit()
         // Show success message before closing
         showBookingSuccess(instrument.name)
 
         // Finish activity after short delay to show message
         binding.root.postDelayed({
             finish()
-        }, 1000)
+            overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right)
+        }, 1200)
     }
+
+     //Animate exit of booking screen
+
+    private fun animateExit() {
+        with(binding) {
+            // Fade out and scale down everything
+            toolbar.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .start()
+
+            cardInstrumentSummary.animate()
+                .alpha(0f)
+                .translationY(-100f)
+                .setDuration(400)
+                .start()
+
+            layoutCustomerName.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .setStartDelay(50)
+                .start()
+
+            layoutContact.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .setStartDelay(100)
+                .start()
+
+            cardRentalSummary.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .setStartDelay(150)
+                .start()
+
+            buttonConfirmBooking.animate()
+                .alpha(0f)
+                .translationY(100f)
+                .setDuration(400)
+                .setStartDelay(200)
+                .start()
+
+            buttonCancelBooking.animate()
+                .alpha(0f)
+                .translationY(100f)
+                .setDuration(400)
+                .setStartDelay(250)
+                .start()
+        }
+    }
+
+    //Handle cancel with animation
+    private fun cancelBooking() {
+        // Animate exit
+        with(binding) {
+            root.animate()
+                .alpha(0f)
+                .setDuration(200)
+                .withEndAction {
+                    setResult(MainActivity.RESULT_CANCELLED)
+                    finish()
+                    overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right)
+                }
+                .start()
+        }
+    }
+
 
     /**
      * Show confirmation dialog when cancelling with unsaved changes
@@ -359,28 +536,6 @@ class BookingActivity : AppCompatActivity() {
             .setTextColor(getColor(R.color.text_white))
             .show()
     }
-
-    /**
-     * Handle up navigation from toolbar
-     * Treats it same as cancel
-     */
-//    override fun onSupportNavigateUp(): Boolean {
-//        handleCancel()
-//        return true
-//    }
-
-    /**
-     * Handle system back button
-     * Treats it same as cancel
-     */
-//    @Deprecated("Deprecated in Java")
-//    override fun onBackPressed() {
-//        if (hasModifications) {
-//            showCancelConfirmationDialog()
-//        } else {
-//            super.onBackPressed()
-//        }
-//    }
 
     /**
      * Save instance state for configuration changes

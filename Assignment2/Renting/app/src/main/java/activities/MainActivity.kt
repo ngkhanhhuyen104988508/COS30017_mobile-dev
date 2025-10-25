@@ -3,11 +3,14 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.doOnPreDraw
 import com.example.renting.R
 import com.example.renting.databinding.ActivityMainBinding
 import com.example.renting.models.Instrument
@@ -52,28 +55,187 @@ class MainActivity : AppCompatActivity() {
         const val THEME_DARK = 1
         const val THEME_SYSTEM = 2
     }
+    private var isNavigatingForward = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         applySavedTheme()
         super.onCreate(savedInstanceState)
-
         // Initialize ViewBinding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Initialize repository with sample data
+        // Initialize repository
         InstrumentRepository.initialize()
-
         // Setup toolbar
         setSupportActionBar(binding.toolbar)
-
         // Setup UI components
         setupClickListeners()
-
         // Display first instrument
         displayInstrument(currentIndex)
 
+        postponeEnterTransition()
+        binding.root.doOnPreDraw {
+            startPostponedEnterTransition()
+        }
+
+        // Initial animation
+        animateInitialLoad()
     }
+    /**
+     * Animate initial load of first instrument
+     */
+    private fun animateInitialLoad() {
+        with(binding) {
+            // Fade in toolbar
+            toolbar.alpha = 0f
+            toolbar.animate()
+                .alpha(1f)
+                .setDuration(400)
+                .start()
+
+            // Scale up card
+            cardInstrumentImage.scaleX = 0.8f
+            cardInstrumentImage.scaleY = 0.8f
+            cardInstrumentImage.alpha = 0f
+            cardInstrumentImage.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .alpha(1f)
+                .setDuration(500)
+                .setStartDelay(100)
+                .setInterpolator(android.view.animation.OvershootInterpolator())
+                .start()
+
+            // Slide in content from bottom
+            val slideUp = AnimationUtils.loadAnimation(this@MainActivity, R.anim.slide_up)
+            textInstrumentName.startAnimation(slideUp)
+
+            // Fade in other elements with stagger
+            val fadeIn = AnimationUtils.loadAnimation(this@MainActivity, R.anim.fade_in)
+            ratingBarInstrument.apply {
+                alpha = 0f
+                postDelayed({
+                    startAnimation(fadeIn)
+                    alpha = 1f
+                }, 200)
+            }
+
+            textDescription.apply {
+                alpha = 0f
+                postDelayed({
+                    startAnimation(fadeIn)
+                    alpha = 1f
+                }, 300)
+            }
+
+            buttonBorrow.apply {
+                alpha = 0f
+                postDelayed({
+                    startAnimation(fadeIn)
+                    alpha = 1f
+                }, 400)
+            }
+        }
+    }
+
+     //Animate instrument transition with direction-aware animations
+
+    private fun animateInstrumentTransition(instrument: Instrument, index: Int) {
+        with(binding) {
+            // Determine animation direction
+            val slideOut = if (isNavigatingForward) {
+                AnimationUtils.loadAnimation(this@MainActivity, R.anim.slide_out_left)
+            } else {
+                AnimationUtils.loadAnimation(this@MainActivity, R.anim.slide_out_right)
+            }
+
+            val slideIn = if (isNavigatingForward) {
+                AnimationUtils.loadAnimation(this@MainActivity, R.anim.slide_in_right)
+            } else {
+                AnimationUtils.loadAnimation(this@MainActivity, R.anim.slide_in_left)
+            }
+
+            // Animate out current content
+            cardInstrumentImage.startAnimation(slideOut)
+
+            // Update data after animation
+            cardInstrumentImage.postDelayed({
+                // Update all UI elements
+                updateInstrumentUI(instrument, index)
+
+                // Animate in new content
+                cardInstrumentImage.startAnimation(slideIn)
+
+                // Fade in text content
+                val fadeIn = AnimationUtils.loadAnimation(this@MainActivity, R.anim.fade_in)
+                textInstrumentName.startAnimation(fadeIn)
+                textDescription.startAnimation(fadeIn)
+                textPrice.startAnimation(fadeIn)
+
+                // Bounce animation for booking status
+                if (instrument.isBooked) {
+                    val bounce = AnimationUtils.loadAnimation(this@MainActivity, R.anim.bounce)
+                    textBookingStatus.startAnimation(bounce)
+                }
+            }, 300)
+        }
+    }
+
+     //Update UI elements without animation (helper method)
+
+    private fun updateInstrumentUI(instrument: Instrument, index: Int) {
+        // Store current instrument
+        currentInstrument = instrument
+        currentIndex = index
+
+        with(binding) {
+            // Image
+            imageInstrument.setImageResource(instrument.imageResourceId)
+            imageInstrument.contentDescription = getString(
+                R.string.cd_instrument_image,
+                instrument.name
+            )
+
+            // Name
+            textInstrumentName.text = instrument.name
+
+            // Rating
+            ratingBarInstrument.rating = instrument.rating
+            textRatingValue.text = String.format("%.1f", instrument.rating)
+
+            // Condition
+            when (instrument.condition) {
+                "Excellent" -> radioGroupCondition.check(R.id.radioExcellent)
+                "Good" -> radioGroupCondition.check(R.id.radioGood)
+                "Fair" -> radioGroupCondition.check(R.id.radioFair)
+            }
+
+            // Price
+            textPrice.text = instrument.getFormattedPrice()
+
+            // Description
+            textDescription.text = instrument.description
+
+            // Booking status
+            updateBookingStatus(instrument)
+
+            // Page indicator
+            val totalInstruments = InstrumentRepository.getInstrumentCount()
+            textPageIndicator.text = getString(
+                R.string.page_indicator,
+                index + 1,
+                totalInstruments
+            )
+
+            // Navigation buttons
+            updateNavigationButtons(index, totalInstruments)
+
+            // Borrow button
+            updateBorrowButton(instrument)
+        }
+    }
+
+
+
     //Apply theme based on saved preference
     private fun applySavedTheme() {
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
@@ -158,6 +320,8 @@ class MainActivity : AppCompatActivity() {
             showError("Unable to load instrument")
             return
         }
+        // Animate transition
+        animateInstrumentTransition(instrument, index)
 
         // Store current instrument
         currentInstrument = instrument
@@ -268,17 +432,19 @@ class MainActivity : AppCompatActivity() {
      */
     private fun navigateToPrevious() {
         if (currentIndex > 0) {
+            isNavigatingForward = false
             displayInstrument(currentIndex - 1)
+            binding.buttonPrevious.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
     }
 
-    /**
-     * Navigate to next instrument
-     */
+     // Navigate to next instrument
     private fun navigateToNext() {
         val totalCount = InstrumentRepository.getInstrumentCount()
         if (currentIndex < totalCount - 1) {
+            isNavigatingForward = true
             displayInstrument(currentIndex + 1)
+            binding.buttonNext.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
     }
 
@@ -308,12 +474,11 @@ class MainActivity : AppCompatActivity() {
         // Start activity for result to handle booking confirmation
         @Suppress("DEPRECATION")
         startActivityForResult(intent, REQUEST_CODE_BOOKING)
+        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
     }
 
-    /**
-     * Handle result from BookingActivity
-     * Updates UI based on booking success or cancellation
-     */
+     //Updates UI based on booking success or cancellation
+
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -328,14 +493,16 @@ class MainActivity : AppCompatActivity() {
                         // Update repository with booked instrument
                         InstrumentRepository.updateInstrument(bookedInstrument)
 
-                        // Refresh current display
-                        displayInstrument(currentIndex)
+                        // Animate refresh
+                        animateBookingSuccess()
 
-                        // Show success message
-                        showBookingSuccess(bookedInstrument.name)
+                        // Delay to show animation
+                        binding.root.postDelayed({
+                            displayInstrument(currentIndex)
+                            showBookingSuccess(bookedInstrument.name)
+                        }, 300)
                     }
                 }
-
                 RESULT_CANCELLED -> {
                     // Booking was cancelled
                     showBookingCancelled()
@@ -344,10 +511,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+     //Animate booking success with celebration effect
+    private fun animateBookingSuccess() {
+        with(binding) {
+            // Pulse animation on card
+            cardInstrumentImage.animate()
+                .scaleX(1.05f)
+                .scaleY(1.05f)
+                .setDuration(150)
+                .withEndAction {
+                    cardInstrumentImage.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(150)
+                        .start()
+                }
+                .start()
+
+            // Haptic feedback
+            root.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+        }
+    }
+
     /**
      * Show success message after booking
-     * Uses Snackbar with action button
-     *
      * @param instrumentName Name of booked instrument
      */
     private fun showBookingSuccess(instrumentName: String) {
