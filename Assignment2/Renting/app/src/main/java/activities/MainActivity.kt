@@ -544,7 +544,6 @@ class MainActivity : AppCompatActivity() {
             Snackbar.LENGTH_LONG
         ).setAction(R.string.action_view_details) {
             // Action: Could navigate to booking details or history
-            // For now, just show instrument details again
             displayInstrument(currentIndex)
         }.setAnchorView(binding.buttonBorrow) // Anchor to bottom button
             .show()
