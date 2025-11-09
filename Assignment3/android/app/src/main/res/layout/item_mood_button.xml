@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="@dimen/spacing_small">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardMood"
+        android:layout_width="@dimen/mood_button_size"
+        android:layout_height="@dimen/mood_button_size"
+        app:cardCornerRadius="35dp"
+        app:cardElevation="@dimen/elevation_small"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground">
+
+        <TextView
+            android:id="@+id/tvEmoji"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="40sp"
+            android:text="😊"/>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/tvMoodName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Happy"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/text_secondary"
+        android:layout_marginTop="@dimen/spacing_small"/>
+
+</LinearLayout>
