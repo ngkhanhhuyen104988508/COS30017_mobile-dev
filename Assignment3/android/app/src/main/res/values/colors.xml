@@ -1,5 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Mood Colors -->
+    <color name="mood_happy">#FFD54F</color>
+    <color name="mood_sad">#64B5F6</color>
+    <color name="mood_angry">#EF5350</color>
+    <color name="mood_calm">#81C784</color>
+    <color name="mood_anxious">#BA68C8</color>
+
+    <!-- App Theme Colors -->
+    <color name="primary">#6C63FF</color>
+    <color name="primary_dark">#5548E0</color>
+    <color name="primary_light">#8B84FF</color>
+    <color name="secondary">#FF6584</color>
+    <color name="secondary_dark">#E04F6B</color>
+
+    <!-- Background & Surface -->
+    <color name="background">#F8F9FA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F0F0F0</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#2C3E50</color>
+    <color name="text_secondary">#95A5A6</color>
+    <color name="text_hint">#BDC3C7</color>
+
+    <!-- Status Colors -->
+    <color name="error">#E74C3C</color>
+    <color name="success">#27AE60</color>
+    <color name="warning">#F39C12</color>
+    <color name="info">#3498DB</color>
+
+    <!-- Common -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- Divider & Border -->
+    <color name="divider">#E0E0E0</color>
+    <color name="border">#CCCCCC</color>
 </resources>
