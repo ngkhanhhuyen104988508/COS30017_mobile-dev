@@ -6,16 +6,21 @@ import android.os.Bundle
 import android.util.Patterns
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.ngkhhuyen.daily.R
+import com.ngkhhuyen.daily.data.models.RegisterRequest
 import com.ngkhhuyen.daily.databinding.ActivityRegisterBinding
 import com.ngkhhuyen.daily.ui.home.HomeActivity
 import com.ngkhhuyen.daily.utils.PreferenceManager
+import com.ngkhhuyen.daily.viewmodel.RegisterViewModel
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var preferenceManager: PreferenceManager
+    private val registerVM: RegisterViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,7 +28,7 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         preferenceManager = PreferenceManager(this)
-
+        observeViewModel()
         setupClickListeners()
     }
 
@@ -91,6 +96,8 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun performRegister(username: String, email: String, password: String) {
+        registerVM.register(RegisterRequest(username, email, password))
+
         // Show loading
         binding.progressBar.visibility = View.VISIBLE
         binding.btnRegister.isEnabled = false
@@ -114,5 +121,11 @@ class RegisterActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }, 1500)
+    }
+
+    private fun observeViewModel() {
+        registerVM.registerState.observe(this) { responseBody ->
+            println(responseBody)
+        }
     }
 }
