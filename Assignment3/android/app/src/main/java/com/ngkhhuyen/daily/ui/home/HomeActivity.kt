@@ -12,10 +12,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.snackbar.Snackbar
 import com.ngkhhuyen.daily.R
 import com.ngkhhuyen.daily.data.local.AppDatabase
 import com.ngkhhuyen.daily.data.models.MoodEntry
 import com.ngkhhuyen.daily.data.models.MoodType
+import com.ngkhhuyen.daily.data.remote.RetrofitClient
+import com.ngkhhuyen.daily.data.repository.MoodRepository
 import com.ngkhhuyen.daily.databinding.ActivityHomeBinding
 import com.ngkhhuyen.daily.ui.history.HistoryActivity
 import com.ngkhhuyen.daily.viewmodel.MoodViewModel
@@ -35,9 +38,10 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Setup ViewModel
+        // Setup ViewModel with Repository
         val database = AppDatabase.getInstance(this)
-        val factory = MoodViewModelFactory(database.moodDao())
+        val moodRepository = MoodRepository(RetrofitClient.apiService, database.moodDao())
+        val factory = MoodViewModelFactory(moodRepository)
         viewModel = ViewModelProvider(this, factory)[MoodViewModel::class.java]
 
         setupToolbar()
@@ -77,17 +81,14 @@ class HomeActivity : AppCompatActivity() {
         val name = view.findViewById<TextView>(R.id.tvMoodName)
 
         emoji.text = moodType.emoji
-        name.text = moodType.name.lowercase().capitalize()
+        name.text = moodType.name.lowercase().replaceFirstChar { it.uppercase() }
 
-        // Set background color
         card.setCardBackgroundColor(getMoodColor(moodType))
 
-        // Click listener
         card.setOnClickListener {
             onMoodSelected(moodType, card)
         }
 
-        // Layout params for equal spacing
         val params = LinearLayout.LayoutParams(
             0,
             LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -120,7 +121,6 @@ class HomeActivity : AppCompatActivity() {
         }
 
         binding.btnAddPhoto.setOnClickListener {
-            // TODO: Implement photo picker
             Toast.makeText(this, "Photo picker - Coming soon!", Toast.LENGTH_SHORT).show()
         }
 
@@ -136,11 +136,11 @@ class HomeActivity : AppCompatActivity() {
                     false
                 }
                 R.id.nav_statistics -> {
-                    Toast.makeText(this, "Statistics - Coming soon!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Statistics - Coming in Week 5!", Toast.LENGTH_SHORT).show()
                     false
                 }
                 R.id.nav_settings -> {
-                    Toast.makeText(this, "Settings - Coming soon!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Settings - Coming in Week 6!", Toast.LENGTH_SHORT).show()
                     false
                 }
                 else -> false
@@ -150,7 +150,6 @@ class HomeActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         moodAdapter = MoodHistoryAdapter { mood ->
-            // Handle mood item click
             Toast.makeText(this, "Mood: ${mood.moodType}", Toast.LENGTH_SHORT).show()
         }
 
@@ -161,8 +160,35 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun observeData() {
-        viewModel.recentMoods.observe(this) { moods ->
+        // Observe loading state
+        viewModel.isLoading.observe(this) { isLoading ->
+            // Show loading indicator if needed
+        }
+
+        // Observe error messages
+        viewModel.errorMessage.observe(this) { error ->
+            error?.let {
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                viewModel.clearError()
+            }
+        }
+
+        // Observe success messages
+        viewModel.successMessage.observe(this) { message ->
+            message?.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                viewModel.clearSuccess()
+            }
+        }
+
+        // Observe moods from database
+        viewModel.allMoods.observe(this) { moods ->
             moodAdapter.submitList(moods.take(3)) // Show only 3 recent
+        }
+
+        // Observe sync status
+        viewModel.syncStatus.observe(this) { status ->
+            // You can show sync status in toolbar or snackbar
         }
     }
 
@@ -177,9 +203,7 @@ class HomeActivity : AppCompatActivity() {
             entryTime = getCurrentTime()
         )
 
-        viewModel.insertMood(entry)
-
-        Toast.makeText(this, getString(R.string.success_mood_saved), Toast.LENGTH_SHORT).show()
+        viewModel.createMood(entry)
 
         // Reset form
         binding.etNote.text?.clear()

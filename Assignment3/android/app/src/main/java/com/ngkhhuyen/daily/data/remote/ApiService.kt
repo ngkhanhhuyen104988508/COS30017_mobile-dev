@@ -1,4 +1,3 @@
-// android/app/src/main/java/com/yourname/dailybean/data/remote/ApiService.kt
 package com.ngkhhuyen.daily.data.remote
 
 import com.ngkhhuyen.daily.data.models.*

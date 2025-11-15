@@ -1,51 +1,136 @@
 package com.ngkhhuyen.daily.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.ngkhhuyen.daily.data.local.MoodDao
 import com.ngkhhuyen.daily.data.models.MoodEntry
+import com.ngkhhuyen.daily.data.repository.MoodRepository
 import kotlinx.coroutines.launch
 
-class MoodViewModel(private val moodDao: MoodDao) : ViewModel() {
+class MoodViewModel(private val repository: MoodRepository) : ViewModel() {
 
-    // Observe all moods
-    val allMoods: LiveData<List<MoodEntry>> = moodDao.getAllMoods()
+    // LiveData for moods from local database
+    val allMoods: LiveData<List<MoodEntry>> = repository.getAllMoodsLive()
 
-    // Observe recent moods (for home screen preview)
-    val recentMoods: LiveData<List<MoodEntry>> = moodDao.getAllMoods()
+    // Loading state
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    // Insert new mood entry
-    fun insertMood(mood: MoodEntry) {
+    // Error message
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
+
+    // Success message
+    private val _successMessage = MutableLiveData<String?>()
+    val successMessage: LiveData<String?> = _successMessage
+
+    // Sync status
+    private val _syncStatus = MutableLiveData<String>()
+    val syncStatus: LiveData<String> = _syncStatus
+
+    init {
+        // Auto-sync on initialization
+        syncMoodsFromBackend()
+    }
+
+    // Sync moods from backend
+    fun syncMoodsFromBackend() {
         viewModelScope.launch {
-            moodDao.insertMood(mood)
+            _isLoading.value = true
+            _syncStatus.value = "Syncing..."
+
+            repository.syncMoodsFromBackend()
+                .onSuccess {
+                    _syncStatus.value = "Synced"
+                    _isLoading.value = false
+                }
+                .onFailure { e ->
+                    _errorMessage.value = "Sync failed: ${e.message}"
+                    _syncStatus.value = "Sync failed"
+                    _isLoading.value = false
+                }
         }
     }
 
-    // Update mood entry
+    // Create new mood
+    fun createMood(mood: MoodEntry) {
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            repository.createMood(mood)
+                .onSuccess {
+                    _successMessage.value = "Mood saved!"
+                    _isLoading.value = false
+                }
+                .onFailure { e ->
+                    _errorMessage.value = "Failed to save: ${e.message}"
+                    _isLoading.value = false
+                }
+        }
+    }
+
+    // Update mood
     fun updateMood(mood: MoodEntry) {
         viewModelScope.launch {
-            moodDao.updateMood(mood)
+            _isLoading.value = true
+
+            repository.updateMood(mood)
+                .onSuccess {
+                    _successMessage.value = "Mood updated!"
+                    _isLoading.value = false
+                }
+                .onFailure { e ->
+                    _errorMessage.value = "Failed to update: ${e.message}"
+                    _isLoading.value = false
+                }
         }
     }
 
-    // Delete mood entry
+    // Delete mood
     fun deleteMood(mood: MoodEntry) {
         viewModelScope.launch {
-            moodDao.deleteMood(mood)
+            _isLoading.value = true
+
+            repository.deleteMood(mood)
+                .onSuccess {
+                    _successMessage.value = "Mood deleted!"
+                    _isLoading.value = false
+                }
+                .onFailure { e ->
+                    _errorMessage.value = "Failed to delete: ${e.message}"
+                    _isLoading.value = false
+                }
         }
     }
 
-    // Delete mood by ID
-    fun deleteMoodById(id: Int) {
+    // Sync unsynced moods
+    fun syncUnsyncedMoods() {
         viewModelScope.launch {
-            moodDao.deleteMoodById(id)
+            _isLoading.value = true
+            _syncStatus.value = "Syncing unsynced moods..."
+
+            repository.syncUnsyncedMoods()
+                .onSuccess { count ->
+                    _successMessage.value = "Synced $count moods"
+                    _syncStatus.value = "Synced"
+                    _isLoading.value = false
+                }
+                .onFailure { e ->
+                    _errorMessage.value = "Sync failed: ${e.message}"
+                    _syncStatus.value = "Sync failed"
+                    _isLoading.value = false
+                }
         }
     }
 
-    // Get moods by date
-    fun getMoodsByDate(date: String): LiveData<List<MoodEntry>> {
-        return moodDao.getMoodsByDate(date)
+    // Clear error message
+    fun clearError() {
+        _errorMessage.value = null
+    }
+
+    // Clear success message
+    fun clearSuccess() {
+        _successMessage.value = null
     }
 }

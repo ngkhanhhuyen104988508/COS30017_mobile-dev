@@ -1,30 +1,62 @@
-// android/app/src/main/java/com/yourname/dailybean/ui/auth/RegisterActivity.kt
 package com.ngkhhuyen.daily.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Patterns
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.ngkhhuyen.daily.R
 import com.ngkhhuyen.daily.databinding.ActivityRegisterBinding
+import com.ngkhhuyen.daily.data.remote.RetrofitClient
+import com.ngkhhuyen.daily.data.repository.AuthRepository
 import com.ngkhhuyen.daily.ui.home.HomeActivity
 import com.ngkhhuyen.daily.utils.PreferenceManager
+import com.ngkhhuyen.daily.viewmodel.AuthViewModel
+import com.ngkhhuyen.daily.viewmodel.AuthViewModelFactory
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
-    private lateinit var preferenceManager: PreferenceManager
+    private lateinit var viewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        preferenceManager = PreferenceManager(this)
+        // Setup ViewModel with Repository
+        val preferenceManager = PreferenceManager(this)
+        val authRepository = AuthRepository(RetrofitClient.apiService, preferenceManager)
+        val factory = AuthViewModelFactory(authRepository)
+        viewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
+        setupObservers()
         setupClickListeners()
+    }
+
+    private fun setupObservers() {
+        // Observe loading state
+        viewModel.isLoading.observe(this) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.btnRegister.isEnabled = !isLoading
+        }
+
+        // Observe error messages
+        viewModel.errorMessage.observe(this) { error ->
+            error?.let {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                viewModel.clearError()
+            }
+        }
+
+        // Observe register success
+        viewModel.registerSuccess.observe(this) { success ->
+            if (success) {
+                Toast.makeText(this, getString(R.string.success_register), Toast.LENGTH_SHORT).show()
+                navigateToHome()
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -59,12 +91,15 @@ class RegisterActivity : AppCompatActivity() {
         if (username.isEmpty()) {
             binding.tilUsername.error = getString(R.string.error_username_required)
             isValid = false
+        } else if (username.length < 3) {
+            binding.tilUsername.error = "Username must be at least 3 characters"
+            isValid = false
         }
 
         if (email.isEmpty()) {
             binding.tilEmail.error = getString(R.string.error_email_required)
             isValid = false
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             binding.tilEmail.error = getString(R.string.error_invalid_email)
             isValid = false
         }
@@ -86,33 +121,15 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         if (isValid) {
-            performRegister(username, email, password)
+            // Call ViewModel to register via API
+            viewModel.register(email, password, username)
         }
     }
 
-    private fun performRegister(username: String, email: String, password: String) {
-        // Show loading
-        binding.progressBar.visibility = View.VISIBLE
-        binding.btnRegister.isEnabled = false
-
-        // TODO: Week 4 - Replace with actual API call
-        // For now, simulate registration with delay
-        binding.root.postDelayed({
-            // Simulate successful registration
-            preferenceManager.saveUserData(
-                userId = 1,
-                email = email,
-                username = username,
-                token = "fake_token_for_testing"
-            )
-
-            Toast.makeText(this, getString(R.string.success_register), Toast.LENGTH_SHORT).show()
-
-            // Navigate to Home
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-        }, 1500)
+    private fun navigateToHome() {
+        val intent = Intent(this, HomeActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

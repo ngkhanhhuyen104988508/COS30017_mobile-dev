@@ -5,25 +5,58 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.ngkhhuyen.daily.R
 import com.ngkhhuyen.daily.databinding.ActivityLoginBinding
-import com.ngkhhuyen.daily.ui.auth.RegisterActivity
+import com.ngkhhuyen.daily.data.remote.RetrofitClient
+import com.ngkhhuyen.daily.data.repository.AuthRepository
 import com.ngkhhuyen.daily.ui.home.HomeActivity
 import com.ngkhhuyen.daily.utils.PreferenceManager
+import com.ngkhhuyen.daily.viewmodel.AuthViewModel
+import com.ngkhhuyen.daily.viewmodel.AuthViewModelFactory
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var preferenceManager: PreferenceManager
+    private lateinit var viewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        preferenceManager = PreferenceManager(this)
+        // Setup ViewModel with Repository
+        val preferenceManager = PreferenceManager(this)
+        val authRepository = AuthRepository(RetrofitClient.apiService, preferenceManager)
+        val factory = AuthViewModelFactory(authRepository)
+        viewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
+        setupObservers()
         setupClickListeners()
+    }
+
+    private fun setupObservers() {
+        // Observe loading state
+        viewModel.isLoading.observe(this) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.btnLogin.isEnabled = !isLoading
+        }
+
+        // Observe error messages
+        viewModel.errorMessage.observe(this) { error ->
+            error?.let {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                viewModel.clearError()
+            }
+        }
+
+        // Observe login success
+        viewModel.loginSuccess.observe(this) { success ->
+            if (success) {
+                Toast.makeText(this, getString(R.string.success_login), Toast.LENGTH_SHORT).show()
+                navigateToHome()
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -68,33 +101,15 @@ class LoginActivity : AppCompatActivity() {
         }
 
         if (isValid) {
-            performLogin(email, password)
+            // Call ViewModel to login via API
+            viewModel.login(email, password)
         }
     }
 
-    private fun performLogin(email: String, password: String) {
-        // Show loading
-        binding.progressBar.visibility = View.VISIBLE
-        binding.btnLogin.isEnabled = false
-
-        // TODO: Week 4 - Replace with actual API call
-        // For now, simulate login with delay
-        binding.root.postDelayed({
-            // Simulate successful login
-            preferenceManager.saveUserData(
-                userId = 1,
-                email = email,
-                username = "Test User",
-                token = "fake_token_for_testing"
-            )
-
-            Toast.makeText(this, getString(R.string.success_login), Toast.LENGTH_SHORT).show()
-
-            // Navigate to Home
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-        }, 1500)
+    private fun navigateToHome() {
+        val intent = Intent(this, HomeActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }
