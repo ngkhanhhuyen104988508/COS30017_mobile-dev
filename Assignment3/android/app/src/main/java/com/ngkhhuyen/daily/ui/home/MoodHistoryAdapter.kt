@@ -1,16 +1,18 @@
-// android/app/src/main/java/com/yourname/dailybean/ui/home/MoodHistoryAdapter.kt
 package com.ngkhhuyen.daily.ui.home
 
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.ngkhhuyen.daily.R
 import com.ngkhhuyen.daily.data.models.MoodEntry
 import com.ngkhhuyen.daily.data.models.MoodType
 import com.ngkhhuyen.daily.databinding.ItemMoodHistoryBinding
-
+import java.io.File
 class MoodHistoryAdapter(
     private val onItemClick: (MoodEntry) -> Unit
 ) : ListAdapter<MoodEntry, MoodHistoryAdapter.MoodViewHolder>(MoodDiffCallback()) {
@@ -43,6 +45,28 @@ class MoodHistoryAdapter(
 
                 // Set mood color
                 cardMood.setCardBackgroundColor(getMoodColor(mood.moodType))
+
+                // Load photo if available
+                if (!mood.photoUrl.isNullOrEmpty()) {
+                    ivPhoto.visibility = View.VISIBLE
+                    val file = File(mood.photoUrl)
+                    if (file.exists()) {
+                        Glide.with(binding.root.context)
+                            .load(file)
+                            .centerCrop()
+                            .placeholder(R.color.surface_variant)
+                            .error(R.color.surface_variant)
+                            .into(ivPhoto)
+                    } else {
+                        ivPhoto.visibility = View.GONE
+                    }
+                } else {
+                    ivPhoto.visibility = View.GONE
+                }
+
+                root.setOnClickListener {
+                    onItemClick(mood)
+                }
 
                 root.setOnClickListener {
                     onItemClick(mood)

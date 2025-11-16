@@ -2,6 +2,9 @@ package com.ngkhhuyen.daily.ui.history
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.ngkhhuyen.daily.R
 import com.ngkhhuyen.daily.data.local.AppDatabase
 import com.ngkhhuyen.daily.data.remote.RetrofitClient
@@ -17,6 +21,7 @@ import com.ngkhhuyen.daily.databinding.ActivityHistoryBinding
 import com.ngkhhuyen.daily.ui.home.MoodHistoryAdapter
 import com.ngkhhuyen.daily.viewmodel.MoodViewModel
 import com.ngkhhuyen.daily.viewmodel.MoodViewModelFactory
+import java.io.File
 
 class HistoryActivity : AppCompatActivity() {
 
@@ -126,19 +131,96 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun showMoodDetails(mood: com.ngkhhuyen.daily.data.models.MoodEntry) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_mood_detail, null)
+
+        // Set mood info
+        dialogView.findViewById<TextView>(R.id.tvMoodTitle).text =
+            "${mood.moodType.emoji} ${mood.moodType.name}"
+        dialogView.findViewById<TextView>(R.id.tvDate).text =
+            "Date: ${mood.getDisplayDate()}"
+        dialogView.findViewById<TextView>(R.id.tvTime).text =
+            "Time: ${mood.getDisplayTime()}"
+        dialogView.findViewById<TextView>(R.id.tvNote).text =
+            mood.note ?: "No note"
+
+        // Load photo if available
+        val photoView = dialogView.findViewById<ImageView>(R.id.ivPhoto)
+        if (!mood.photoUrl.isNullOrEmpty()) {
+            val file = File(mood.photoUrl)
+            if (file.exists()) {
+                photoView.visibility = View.VISIBLE
+                Glide.with(this)
+                    .load(file)
+                    .centerCrop()
+                    .into(photoView)
+            } else {
+                photoView.visibility = View.GONE
+            }
+        } else {
+            photoView.visibility = View.GONE
+        }
+
         AlertDialog.Builder(this)
-            .setTitle("${mood.moodType.emoji} ${mood.moodType.name}")
-            .setMessage("""
-                Date: ${mood.getDisplayDate()}
-                Time: ${mood.getDisplayTime()}
-                Note: ${mood.note ?: "No note"}
-            """.trimIndent())
+            .setView(dialogView)
             .setPositiveButton("OK", null)
+            .setNeutralButton("Edit") { _, _ ->
+                editMood(mood)
+            }
+            .setNegativeButton("Delete") { _, _ ->
+                deleteMood(mood)
+            }
             .show()
     }
 
     private fun editMood(mood: com.ngkhhuyen.daily.data.models.MoodEntry) {
-        Toast.makeText(this, "Edit - Coming soon!", Toast.LENGTH_SHORT).show()
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_mood, null)
+        val moodPicker = dialogView.findViewById<LinearLayout>(R.id.layoutMoodPicker)
+        val noteInput = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etNote)
+
+        // Set current note
+        noteInput.setText(mood.note)
+
+        // Create mood buttons
+        var selectedMoodType = mood.moodType
+        val moods = listOf(
+            com.ngkhhuyen.daily.data.models.MoodType.HAPPY,
+            com.ngkhhuyen.daily.data.models.MoodType.SAD,
+            com.ngkhhuyen.daily.data.models.MoodType.ANGRY,
+            com.ngkhhuyen.daily.data.models.MoodType.CALM,
+            com.ngkhhuyen.daily.data.models.MoodType.ANXIOUS
+        )
+
+        val moodButtons = mutableListOf<TextView>()
+        moods.forEach { moodType ->
+            val button = TextView(this).apply {
+                text = moodType.emoji
+                textSize = 32f
+                setPadding(24, 24, 24, 24)
+                setBackgroundResource(if (moodType == selectedMoodType)
+                    R.color.primary else android.R.color.transparent)
+                setOnClickListener {
+                    selectedMoodType = moodType
+                    moodButtons.forEach { btn ->
+                        btn.setBackgroundResource(android.R.color.transparent)
+                    }
+                    setBackgroundResource(R.color.primary)
+                }
+            }
+            moodButtons.add(button)
+            moodPicker.addView(button)
+        }
+        AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setPositiveButton("Save") { _, _ ->
+                val updatedMood = mood.copy(
+                    moodType = selectedMoodType,
+                    note = noteInput.text.toString().trim().ifEmpty { null }
+                )
+                viewModel.updateMood(updatedMood)
+                Toast.makeText(this, "Mood updated!", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun deleteMood(mood: com.ngkhhuyen.daily.data.models.MoodEntry) {
