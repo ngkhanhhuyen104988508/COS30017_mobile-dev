@@ -25,13 +25,44 @@ import com.ngkhhuyen.daily.viewmodel.MoodViewModel
 import com.ngkhhuyen.daily.viewmodel.MoodViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.*
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.ngkhhuyen.daily.utils.ImagePickerHelper
 
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHomeBinding
     private lateinit var viewModel: MoodViewModel
     private var selectedMood: MoodType? = null
+    private var selectedPhotoUri: Uri? = null
+    private var selectedPhotoPath: String? = null
     private lateinit var moodAdapter: MoodHistoryAdapter
+
+    // Image picker launcher
+    private val imagePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedPhotoUri = it
+            selectedPhotoPath = ImagePickerHelper.saveImageToInternalStorage(this, it)
+            binding.btnAddPhoto.text = "✓ Photo Added"
+            Toast.makeText(this, "Photo selected!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Permission launcher
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            imagePickerLauncher.launch("image/*")
+        } else {
+            Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +82,17 @@ class HomeActivity : AppCompatActivity() {
         observeData()
         updateDateDisplay()
     }
+
+    //open image
+    private fun openImagePicker() {
+        imagePickerLauncher.launch("image/*")
+    }
+
+    private fun checkPermissionAndOpenPicker() {
+
+        openImagePicker()
+    }
+
 
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
@@ -121,7 +163,8 @@ class HomeActivity : AppCompatActivity() {
         }
 
         binding.btnAddPhoto.setOnClickListener {
-            Toast.makeText(this, "Photo picker - Coming soon!", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "Photo picker - Coming soon!", Toast.LENGTH_SHORT).show()
+            checkPermissionAndOpenPicker()
         }
 
         binding.tvViewAll.setOnClickListener {

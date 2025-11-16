@@ -70,6 +70,14 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.8.2")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
 
+    // Compose BOM (Bill of Materials)
+    val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
+    implementation(composeBom)
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+
     // Navigation Component
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
@@ -83,6 +91,9 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    // MPAndroidChart (PieChart, LineChart, etc.)
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
     // Room Database
     val roomVersion = "2.7.0"
     implementation("androidx.room:room-runtime:$roomVersion")
@@ -92,6 +103,9 @@ dependencies {
     // Glide (Image loading)
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
+
+    // Coil (Image loading)
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")

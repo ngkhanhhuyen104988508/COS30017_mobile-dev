@@ -63,6 +63,20 @@
             app:layout_constraintStart_toEndOf="@id/cardMood"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+        <!-- Photo Thumbnail (if available) -->
+        <ImageView
+            android:id="@+id/ivPhoto"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:background="@color/surface_variant"
+            app:layout_constraintTop_toBottomOf="@id/tvNote"
+            app:layout_constraintStart_toEndOf="@id/cardMood"
+            android:contentDescription="Mood photo"/>
+
         <!-- Date -->
         <TextView
             android:id="@+id/tvDate"
