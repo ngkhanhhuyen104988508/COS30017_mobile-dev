@@ -49,6 +49,17 @@
             android:name=".ui.history.HistoryActivity"
             android:exported="false" />
 
+        <!-- Stats Activity -->
+        <activity
+            android:name=".ui.stats.StatisticsActivity"
+            android:exported="false" />
+
+        <!-- Settings Activity -->
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="false" />
+
+
     </application>
 
 </manifest>

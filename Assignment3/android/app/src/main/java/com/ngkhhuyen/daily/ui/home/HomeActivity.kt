@@ -30,6 +30,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import com.ngkhhuyen.daily.ui.stats.StatisticsActivity
 import com.ngkhhuyen.daily.utils.ImagePickerHelper
 
 class HomeActivity : AppCompatActivity() {
@@ -179,7 +180,7 @@ class HomeActivity : AppCompatActivity() {
                     false
                 }
                 R.id.nav_statistics -> {
-                    Toast.makeText(this, "Statistics - Coming in Week 5!", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, StatisticsActivity::class.java))
                     false
                 }
                 R.id.nav_settings -> {
