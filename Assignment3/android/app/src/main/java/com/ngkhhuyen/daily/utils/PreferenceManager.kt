@@ -26,11 +26,16 @@ class PreferenceManager(context: Context) {
     }
 
     companion object {
+        // Auth keys
         private const val KEY_TOKEN = "auth_token"
         private const val KEY_USER_ID = "user_id"
         private const val KEY_EMAIL = "email"
         private const val KEY_USERNAME = "username"
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
+        // Settings keys
+        private const val KEY_THEME = "theme_setting"
+        private const val KEY_IS_PREMIUM = "is_premium"
+        private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
     }
 
     fun saveUserData(userId: Int, email: String, username: String, token: String) {
@@ -66,5 +71,35 @@ class PreferenceManager(context: Context) {
 
     fun clearUserData() {
         sharedPreferences.edit { clear() }
+    }
+    // Settings methods
+    fun saveThemeSetting(theme: String) {
+        sharedPreferences.edit {
+            putString(KEY_THEME, theme)
+        }
+    }
+
+    fun getThemeSetting(): String {
+        return sharedPreferences.getString(KEY_THEME, "Light") ?: "Light"
+    }
+
+    fun savePremiumStatus(isPremium: Boolean) {
+        sharedPreferences.edit {
+            putBoolean(KEY_IS_PREMIUM, isPremium)
+        }
+    }
+
+    fun isPremiumUser(): Boolean {
+        return sharedPreferences.getBoolean(KEY_IS_PREMIUM, false)
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        sharedPreferences.edit {
+            putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled)
+        }
+    }
+
+    fun areNotificationsEnabled(): Boolean {
+        return sharedPreferences.getBoolean(KEY_NOTIFICATIONS_ENABLED, true)
     }
 }

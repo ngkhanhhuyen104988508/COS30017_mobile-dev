@@ -30,6 +30,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import com.ngkhhuyen.daily.ui.settings.SettingsActivity
 import com.ngkhhuyen.daily.ui.stats.StatisticsActivity
 import com.ngkhhuyen.daily.utils.ImagePickerHelper
 
@@ -184,7 +185,7 @@ class HomeActivity : AppCompatActivity() {
                     false
                 }
                 R.id.nav_settings -> {
-                    Toast.makeText(this, "Settings - Coming in Week 6!", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, SettingsActivity::class.java))
                     false
                 }
                 else -> false
