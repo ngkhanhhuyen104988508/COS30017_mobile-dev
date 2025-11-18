@@ -219,11 +219,11 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun showPrivacyPolicy() {
-        Toast.makeText(this, "Privacy Policy - Coming soon!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Privacy Policy", Toast.LENGTH_SHORT).show()
     }
 
     private fun showTermsOfService() {
-        Toast.makeText(this, "Terms of Service - Coming soon!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Terms of Service", Toast.LENGTH_SHORT).show()
     }
 
     private fun showAboutDialog() {
