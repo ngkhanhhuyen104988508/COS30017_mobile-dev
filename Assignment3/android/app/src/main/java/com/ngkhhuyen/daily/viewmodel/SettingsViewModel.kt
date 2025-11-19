@@ -50,6 +50,28 @@ class SettingsViewModel(
     private val _themeCalendarSetting = MutableLiveData<String>()
     val themeCalendarSetting: LiveData<String> = _themeCalendarSetting
 
+    private val _changePasswordStatus = MutableLiveData<Result<String>?>()
+    val changePasswordStatus: LiveData<Result<String>?> = _changePasswordStatus
+
+
+    fun changePassword(currentPassword: String, newPassword: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val result = authRepository.changePassword(currentPassword, newPassword)
+                _changePasswordStatus.value = result
+            } catch (e: Exception) {
+                _changePasswordStatus.value = Result.failure(e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun clearChangePasswordStatus() {
+        _changePasswordStatus.value = null
+    }
+
     // Load all information when screen is created
     fun loadAllInfo() {
         viewModelScope.launch {

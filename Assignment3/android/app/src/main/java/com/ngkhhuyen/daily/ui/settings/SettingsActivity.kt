@@ -7,6 +7,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.ngkhhuyen.daily.R
 import com.ngkhhuyen.daily.data.local.AppDatabase
 import com.ngkhhuyen.daily.data.remote.RetrofitClient
@@ -150,6 +152,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.bottomNavigation.selectedItemId = R.id.nav_settings
     }
 
+
     private fun showThemeDialog() {
         val themes = arrayOf("Light", "Dark", "Auto")
         val currentTheme = viewModel.themeCalendarSetting.value ?: "Light"
@@ -209,8 +212,76 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun showChangePasswordDialog() {
-        // TODO: Implement change password dialog
-        Toast.makeText(this, "Change Password - Coming soon!", Toast.LENGTH_SHORT).show()
+        val dialogView = layoutInflater.inflate(R.layout.dialog_change_password, null)
+        val etCurrentPassword = dialogView.findViewById<TextInputEditText>(R.id.etCurrentPassword)
+        val etNewPassword = dialogView.findViewById<TextInputEditText>(R.id.etNewPassword)
+        val etConfirmPassword = dialogView.findViewById<TextInputEditText>(R.id.etConfirmPassword)
+
+        val tilCurrentPassword = dialogView.findViewById<TextInputLayout>(R.id.tilCurrentPassword)
+        val tilNewPassword = dialogView.findViewById<TextInputLayout>(R.id.tilNewPassword)
+        val tilConfirmPassword = dialogView.findViewById<TextInputLayout>(R.id.tilConfirmPassword)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Change Password")
+            .setView(dialogView)
+            .setPositiveButton("Change", null)
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val currentPassword = etCurrentPassword.text.toString()
+                val newPassword = etNewPassword.text.toString()
+                val confirmPassword = etConfirmPassword.text.toString()
+
+                // Validate
+                var isValid = true
+
+                if (currentPassword.isEmpty()) {
+                    tilCurrentPassword.error = "Current password is required"
+                    isValid = false
+                } else {
+                    tilCurrentPassword.error = null
+                }
+
+                if (newPassword.isEmpty()) {
+                    tilNewPassword.error = "New password is required"
+                    isValid = false
+                } else if (newPassword.length < 6) {
+                    tilNewPassword.error = "Password must be at least 6 characters"
+                    isValid = false
+                } else {
+                    tilNewPassword.error = null
+                }
+
+                if (confirmPassword != newPassword) {
+                    tilConfirmPassword.error = "Passwords do not match"
+                    isValid = false
+                } else {
+                    tilConfirmPassword.error = null
+                }
+
+                if (isValid) {
+                    viewModel.changePassword(currentPassword, newPassword)
+                    dialog.dismiss()
+                }
+            }
+        }
+
+        // Observe change password result
+        viewModel.changePasswordStatus.observe(this) { result ->
+            result?.let {
+                it.onSuccess { message ->
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                    viewModel.clearChangePasswordStatus()
+                }.onFailure { error ->
+                    Toast.makeText(this, "Failed: ${error.message}", Toast.LENGTH_LONG).show()
+                    viewModel.clearChangePasswordStatus()
+                }
+            }
+        }
+
+        dialog.show()
     }
 
     private fun exportData() {

@@ -1,8 +1,10 @@
 package com.ngkhhuyen.daily.data.repository
 
 import com.ngkhhuyen.daily.data.models.AuthData
+import com.ngkhhuyen.daily.data.models.ChangePasswordRequest
 import com.ngkhhuyen.daily.data.models.LoginRequest
 import com.ngkhhuyen.daily.data.models.RegisterRequest
+import com.ngkhhuyen.daily.data.models.UserProfileResponse
 import com.ngkhhuyen.daily.data.remote.ApiService
 import com.ngkhhuyen.daily.data.remote.RetrofitClient
 import com.ngkhhuyen.daily.utils.PreferenceManager
@@ -83,6 +85,41 @@ class AuthRepository(
             } else {
                 val errorMsg = response.body()?.message ?: "Login failed"
                 Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    //Change password
+    suspend fun changePassword(
+        currentPassword: String,
+        newPassword: String
+    ): Result<String> {
+        return try {
+            val response = apiService.changePassword(
+                ChangePasswordRequest(currentPassword, newPassword)
+            )
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!.message)
+            } else {
+                val errorMessage = response.errorBody()?.string() ?: "Failed to change password"
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getUserProfile(): Result<UserProfileResponse> {
+        return try {
+            val response = apiService.getUserProfile()
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to load profile"))
             }
         } catch (e: Exception) {
             Result.failure(e)

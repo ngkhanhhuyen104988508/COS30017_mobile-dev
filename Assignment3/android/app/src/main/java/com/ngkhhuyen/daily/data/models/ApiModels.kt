@@ -85,3 +85,19 @@ data class ActivityData(
     val name: String,
     val icon: String
 )
+//change pass
+data class ChangePasswordRequest(
+    val currentPassword: String,
+    val newPassword: String
+)
+
+data class UserProfileResponse(
+    val id: Int,
+    val username: String,
+    val email: String,
+    val createdAt: String
+)
+
+data class MessageResponse(
+    val message: String
+)

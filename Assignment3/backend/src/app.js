@@ -107,6 +107,7 @@ app.listen(PORT, () => {
   console.log('  POST /api/auth/login');
   console.log('  GET  /api/auth/profile');
   console.log('  PUT  /api/auth/password');
+  console.log('  POST /api/auth/change-password');
   console.log('  POST /api/moods');
   console.log('  GET  /api/moods');
   console.log('================================');

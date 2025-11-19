@@ -69,4 +69,15 @@ interface ApiService {
 
     @GET("stats/summary")
     suspend fun getSummary(): Response<ApiResponse<Map<String, Any>>>
+
+    //CHANGE PASS
+
+    @POST("auth/change-password")
+    suspend fun changePassword(
+        @Body request: ChangePasswordRequest
+    ): Response<MessageResponse>
+
+    @GET("auth/profile")
+    suspend fun getUserProfile(): Response<UserProfileResponse>
+
 }
