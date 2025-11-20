@@ -1,9 +1,11 @@
 package com.ngkhhuyen.daily.ui.settings
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +21,9 @@ import com.ngkhhuyen.daily.ui.auth.LoginActivity
 import com.ngkhhuyen.daily.utils.PreferenceManager
 import com.ngkhhuyen.daily.viewmodel.SettingsViewModel
 import com.ngkhhuyen.daily.viewmodel.SettingsViewModelFactory
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -285,9 +290,62 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun exportData() {
-        // TODO: Implement data export
-        Toast.makeText(this, "Export Data - Coming soon!", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            binding.progressBar.visibility = View.VISIBLE
+
+            val result = viewModel.exportDataToJson()
+
+            result.onSuccess { jsonData ->
+                saveJsonToFile(jsonData)
+            }.onFailure { error ->
+                Toast.makeText(this@SettingsActivity,
+                    "Export failed: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+
+            binding.progressBar.visibility = View.GONE
+        }
     }
+
+    private fun saveJsonToFile(jsonData: String) {
+        try {
+            val fileName = "DailyBean_Export_${System.currentTimeMillis()}.json"
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "application/json"
+                putExtra(Intent.EXTRA_TITLE, fileName)
+            }
+            exportDataLauncher.launch(intent)
+            pendingExportData = jsonData
+        } catch (e: Exception) {
+            Toast.makeText(this, "Failed to export: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private var pendingExportData: String? = null
+
+    private val exportDataLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.data?.let { uri ->
+                pendingExportData?.let { data ->
+                    writeJsonToUri(uri, data)
+                }
+            }
+        }
+    }
+
+    private fun writeJsonToUri(uri: Uri, data: String) {
+        try {
+            contentResolver.openOutputStream(uri)?.use { outputStream ->
+                outputStream.write(data.toByteArray())
+            }
+            Toast.makeText(this, "Data exported successfully!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Failed to write file: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     private fun showPrivacyPolicy() {
         Toast.makeText(this, "Privacy Policy", Toast.LENGTH_SHORT).show()

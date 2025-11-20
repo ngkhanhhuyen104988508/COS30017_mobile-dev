@@ -8,6 +8,9 @@ import com.ngkhhuyen.daily.data.repository.AuthRepository
 import com.ngkhhuyen.daily.data.repository.StatsRepository
 import com.ngkhhuyen.daily.utils.PreferenceManager
 import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
+import kotlin.text.toString
 
 class SettingsViewModel(
     private val authRepository: AuthRepository,
@@ -142,6 +145,42 @@ class SettingsViewModel(
             }
         }
     }
+    //export data
+    suspend fun exportDataToJson(): Result<String> {
+        return try {
+            val statsResult = statsRepository.getMoodStats("all")
+
+            if (statsResult.isSuccess) {
+                val stats = statsResult.getOrNull()!!
+                val jsonData = JSONObject().apply {
+                    put("userName", userName.value)
+                    put("userId", userId.value)
+                    put("exportDate", System.currentTimeMillis())
+                    put("totalEntries", stats.totalEntries)
+                    put("recordedDays", recordedDays.value)
+                    put("photoCount", photoCount.value)
+
+                    val trendsArray = JSONArray()
+                    stats.trend.forEach { trend ->
+                        trendsArray.put(JSONObject().apply {
+                            put("date", trend.entryDate)
+                            put("mood", trend.moodType)
+                            put("count", trend.count)
+                        })
+                    }
+                    put("moodTrends", trendsArray)
+                }
+
+                Result.success(jsonData.toString(2))
+            } else {
+                Result.failure(Exception("Failed to export data"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
 
     // Logout function
     fun logout() {

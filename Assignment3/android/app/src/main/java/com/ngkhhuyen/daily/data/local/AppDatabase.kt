@@ -1,4 +1,4 @@
-// android/app/src/main/java/com/yourname/dailybean/data/local/AppDatabase.kt
+
 package com.ngkhhuyen.daily.data.local
 
 import android.content.Context
